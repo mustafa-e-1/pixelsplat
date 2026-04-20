@@ -174,4 +174,5 @@ cython_debug/
 *.ckpt
 table.tex
 /baselines
-/test/*
+/test/*LOGBOOK.md
+requirements-locked-*.txt
