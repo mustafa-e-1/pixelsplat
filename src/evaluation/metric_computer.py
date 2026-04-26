@@ -54,8 +54,8 @@ class MetricComputer(LightningModule):
                 f"ssim_{key}": compute_ssim(rgb_gt, images).mean(),
                 f"psnr_{key}": compute_psnr(rgb_gt, images).mean(),
             }
-        self.log_dict(all_metrics)
-        self.print_preview_metrics(all_metrics)
+        all_metrics_float = {k: float(v) for k, v in all_metrics.items()}
+        self.print_preview_metrics(all_metrics_float)
 
         # Skip the rest if no side-by-side is needed.
         if self.cfg.side_by_side_path is None:
