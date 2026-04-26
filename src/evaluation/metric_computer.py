@@ -56,6 +56,7 @@ class MetricComputer(LightningModule):
             }
         all_metrics_float = {k: float(v) for k, v in all_metrics.items()}
         self.print_preview_metrics(all_metrics_float)
+        self._save_per_scene(scene, all_metrics_float)
 
         # Skip the rest if no side-by-side is needed.
         if self.cfg.side_by_side_path is None:
@@ -90,6 +91,21 @@ class MetricComputer(LightningModule):
                 f"cd {self.cfg.side_by_side_path / scene_key} && {command} "
                 f"{Path.cwd()}/{self.cfg.side_by_side_path}/videos/{scene_key}.mp4"
             )
+
+    def _save_per_scene(self, scene: str, metrics: dict[str, float]) -> None:
+        """Append this scene's metrics to a JSON file. Cumulative across scenes."""
+        import json
+        from pathlib import Path
+        out = Path("outputs/full_eval/per_scene_metrics.json")
+        out.parent.mkdir(parents=True, exist_ok=True)
+        if out.exists():
+            with out.open() as f:
+                data = json.load(f)
+        else:
+            data = {}
+        data[scene] = metrics
+        with out.open("w") as f:
+            json.dump(data, f, indent=2)
 
     def print_preview_metrics(self, metrics: dict[str, float]) -> None:
         if getattr(self, "running_metrics", None) is None:
